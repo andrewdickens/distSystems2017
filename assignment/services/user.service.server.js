@@ -11,7 +11,8 @@ module.exports = function (app, model) {
     app.use(session({
         secret: 'this is the secret',
         resave: true,
-        saveUninitialized: true
+        saveUninitialized: true,
+        cookie:{maxAge:900000}
     }));
 
     app.use(cookieParser());
