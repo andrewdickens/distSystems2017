@@ -114,7 +114,7 @@ module.exports = function (app, model) {
             var payload = req.body;
             console.log(payload);
 
-            if ((typeof payload.variable1 != 'number') || (typeof payload.variable2 != 'number')) {
+            if ((typeof payload.variable1 != 'number') || (typeof payload.variable2 != 'number') || (payload.variable2==0)) {
                 res.send({message: "The numbers you entered are not valid"});
             } else res.send({message: "The action was successful", result: +payload.variable1 / +payload.variable2});
         } else res.json({message: "You are not currently logged in"});
