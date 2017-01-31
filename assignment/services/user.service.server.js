@@ -52,7 +52,7 @@ module.exports = function (app, model) {
     function logout(req, res) {
         if (req.user) {
             req.logout();
-            res.json({message: "You have been succesfully logged out"})
+            res.json({message: "You have been successfully logged out"})
         } else res.json({message: "You are not currently logged in"});
     }
 
