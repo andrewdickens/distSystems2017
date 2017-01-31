@@ -3,7 +3,9 @@ module.exports = function (app, model) {
     console.log("In user.service.server");
 
     var passport = require('passport');
-    var LocalStrategy = require('passport-local').Strategy;
+
+    var JsonStrategy = require('passport-json').Strategy;
+
 
     var cookieParser = require('cookie-parser');
     var session = require('express-session');
@@ -18,16 +20,16 @@ module.exports = function (app, model) {
     app.use(cookieParser());
     app.use(passport.initialize());
     app.use(passport.session());
-    passport.use(new LocalStrategy(localStrategy));
+    passport.use(new JsonStrategy(jsonStrategy));
     passport.serializeUser(serializeUser);
     passport.deserializeUser(deserializeUser);
 
 
-    app.post("/api/login", passport.authenticate('local'), login);
-    app.post('/api/logout', logout);
-    app.post('/api/add', addition);
-    app.post('/api/multiply', multiply);
-    app.post('/api/divide', divide);
+    app.post("/login", passport.authenticate('json'), login);
+    app.post('/logout', logout);
+    app.post('/add', addition);
+    app.post('/multiply', multiply);
+    app.post('/divide', divide);
 
 
     function serializeUser(user, done) {
@@ -56,8 +58,8 @@ module.exports = function (app, model) {
         } else res.json({message: "You are not currently logged in"});
     }
 
-    function localStrategy(username, password, done) {
-        console.log("inside local strategy");
+    function jsonStrategy(username, password, done){
+        console.log("inside json strategy");
         console.log(username);
         console.log(password);
 
@@ -81,42 +83,43 @@ module.exports = function (app, model) {
 
     function login(req, res) {
         console.log("in login");
+        console.log(req.body);
+
         var user = req.user;
 
         if (user.username == null) {
-            res.send({message: "There seems to be an issue with the username/passsword combination that you entered"});
+            res.send({message: "There seems to be an issue with the username/password combination that you entered"});
         } else res.json({message: "Welcome " + user.firstName});
     }
 
     function addition(req, res) {
-        if (req.user) {
-            var payload = req.body;
+        console.log(req.body);
 
-            if ((typeof payload.variable1 != 'number') || (typeof payload.variable2 != 'number')) {
+        if (req.user) {
+
+            if ((typeof parseInt(req.body.num1) != 'number') || (typeof parseInt(req.body.num2) != 'number')) {
                 res.send({message: "The numbers you entered are not valid"});
-            } else res.send({message: "The action was successful", result: payload.variable1 + payload.variable2});
+            } else res.send({message: "The action was successful", result: parseInt(req.body.num1) + parseInt(req.body.num2)});
         } else res.json({message: "You are not currently logged in"});
     }
 
     function multiply(req, res) {
         if (req.user) {
-            var payload = req.body;
-            console.log(payload);
+            console.log(req.body);
 
-            if ((typeof payload.variable1 != 'number') || (typeof payload.variable2 != 'number')) {
+            if ((typeof parseInt(req.body.num1) != 'number') || (typeof parseInt(req.body.num2) != 'number')) {
                 res.send({message: "The numbers you entered are not valid"});
-            } else res.send({message: "The action was successful", result: +payload.variable1 * +payload.variable2});
+            } else res.send({message: "The action was successful", result: parseInt(req.body.num1) * parseInt(req.body.num2)});
         } else res.json({message: "You are not currently logged in"});
     }
 
     function divide(req, res) {
         if (req.user) {
-            var payload = req.body;
-            console.log(payload);
+            console.log(req.body);
 
-            if ((typeof payload.variable1 != 'number') || (typeof payload.variable2 != 'number') || (payload.variable2==0)) {
+            if ((typeof parseInt(req.body.num1) != 'number') || (typeof parseInt(req.body.num2) != 'number') || (parseInt(req.body.num2)==0)) {
                 res.send({message: "The numbers you entered are not valid"});
-            } else res.send({message: "The action was successful", result: +payload.variable1 / +payload.variable2});
+            } else res.send({message: "The action was successful", result: parseInt(req.body.num1) / parseInt(req.body.num2)});
         } else res.json({message: "You are not currently logged in"});
     }
 };

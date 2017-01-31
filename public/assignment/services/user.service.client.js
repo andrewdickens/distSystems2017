@@ -15,7 +15,7 @@
         return api;
 
         function logout() {
-            return $http.post("/api/logout");
+            return $http.post("/logout");
         }
 
         function login(username, password) {
@@ -24,21 +24,37 @@
                 username: username,
                 password: password
             };
+
             console.log(user);
-            return $http.post("/api/login", {
+            return $http.post("/login", {
                 username: username,
                 password: password
             });
         }
 
-        function addition(var1, var2, loggedIn) {
+        // function login(username, password) {
+        //     console.log("in login client service");
+        //     var user = {
+        //         username: username,
+        //         password: password
+        //     };
+        //
+        //     console.log(user);
+        //     return $http({
+        //         url: '/login',
+        //         method: 'POST',
+        //         headers: {'Content-Type': 'application/json'},
+        //         data: '{username: ' + username + ', password: ' + password + '}'
+        //     });
+        // }
+
+        function addition(var1, var2) {
             var payload = {
                 variable1: var1,
-                variable2: var2,
-                loggedIn: loggedIn
+                variable2: var2
             };
 
-            return $http.post("/api/add", payload)
+            return $http.post("/add", payload)
         }
 
         function multiply(var1, var2, loggedIn) {
@@ -48,22 +64,20 @@
                 loggedIn: loggedIn
             };
 
-            return $http.post("/api/multiply", payload)
+            return $http.post("/multiply", payload)
         }
 
-        function divide(var1, var2, loggedIn) {
+        function divide(var1, var2) {
 
             console.log("in divide");
-            
+
             var payload = {
                 variable1: var1,
-                variable2: var2,
-                loggedIn: loggedIn
-            };
+                variable2: var2};
 
             console.log(payload);
 
-            return $http.post("/api/divide", payload)
+            return $http.post("/divide", payload)
         }
     }
 })();
