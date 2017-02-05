@@ -14,7 +14,7 @@ module.exports = function (app, model) {
         secret: 'this is the secret',
         resave: true,
         saveUninitialized: true,
-        cookie:{maxAge:900000}
+        cookie: {maxAge: 900000}
     }));
 
     app.use(cookieParser());
@@ -30,7 +30,69 @@ module.exports = function (app, model) {
     app.post('/add', addition);
     app.post('/multiply', multiply);
     app.post('/divide', divide);
+    app.post('/register', register);
+    app.post('/updateInfo', updateInfo);
+    app.post('/addProducts', addProducts);
+    app.post('/modifyProducts', modifyProducts);
+    app.post('/viewUsers', viewUsers);
+    app.post('viewProducts', viewProducts);
 
+
+    function register(req, res) {
+        var user = req.body;
+
+        model.userModel
+            .findUser(user)
+            .then(function (result) {
+                if (result == null) {
+                    if (allFields(user)) {
+                        if (result == false) {
+                            model.userModel
+                                .createUser(user)
+                                .then(function (newUser) {
+                                        res.json({message: "The action was successful"})
+                                    },
+                                    function (error) {
+                                        res.sendStatus(400).send(error);
+                                    });
+                        }
+                    } else res.json({message: "The input you provided is not valid"})
+                } else res.json({message: "The input you provided is not valid"})
+            });
+    }
+
+    function allFields(user) {
+        console.log("in all fields");
+
+        return !((user.fname == "" || user.fname == undefined) ||
+        (user.lname == "" || user.lname == undefined) ||
+        (user.address == "" || user.address == undefined) ||
+        (user.city == "" || user.city == undefined) ||
+        (user.state == "" || user.state == undefined) ||
+        (user.email == "" || user.email == undefined) ||
+        (user.username == "" || user.username == undefined) ||
+        (user.password == "" || user.password == undefined));
+    }
+
+    function updateInfo(req, res) {
+
+    }
+
+    function addProducts(req, res) {
+
+    }
+
+    function modifyProducts(req, res) {
+
+    }
+
+    function viewUsers(req, res) {
+
+    }
+
+    function viewProducts(req, res) {
+
+    }
 
     function serializeUser(user, done) {
         console.log("in serialize user");
@@ -58,7 +120,7 @@ module.exports = function (app, model) {
         } else res.json({message: "You are not currently logged in"});
     }
 
-    function jsonStrategy(username, password, done){
+    function jsonStrategy(username, password, done) {
         console.log("inside json strategy");
         console.log(username);
         console.log(password);
@@ -89,7 +151,7 @@ module.exports = function (app, model) {
 
         if (user.username == null) {
             res.send({message: "There seems to be an issue with the username/password combination that you entered"});
-        } else res.json({message: "Welcome " + user.firstName});
+        } else res.json({message: "Welcome " + user.fname});
     }
 
     function addition(req, res) {
@@ -99,7 +161,10 @@ module.exports = function (app, model) {
 
             if ((typeof parseInt(req.body.num1) != 'number') || (typeof parseInt(req.body.num2) != 'number')) {
                 res.send({message: "The numbers you entered are not valid"});
-            } else res.send({message: "The action was successful", result: parseInt(req.body.num1) + parseInt(req.body.num2)});
+            } else res.send({
+                message: "The action was successful",
+                result: parseInt(req.body.num1) + parseInt(req.body.num2)
+            });
         } else res.json({message: "You are not currently logged in"});
     }
 
@@ -109,7 +174,10 @@ module.exports = function (app, model) {
 
             if ((typeof parseInt(req.body.num1) != 'number') || (typeof parseInt(req.body.num2) != 'number')) {
                 res.send({message: "The numbers you entered are not valid"});
-            } else res.send({message: "The action was successful", result: parseInt(req.body.num1) * parseInt(req.body.num2)});
+            } else res.send({
+                message: "The action was successful",
+                result: parseInt(req.body.num1) * parseInt(req.body.num2)
+            });
         } else res.json({message: "You are not currently logged in"});
     }
 
@@ -117,9 +185,12 @@ module.exports = function (app, model) {
         if (req.user) {
             console.log(req.body);
 
-            if ((typeof parseInt(req.body.num1) != 'number') || (typeof parseInt(req.body.num2) != 'number') || (parseInt(req.body.num2)==0)) {
+            if ((typeof parseInt(req.body.num1) != 'number') || (typeof parseInt(req.body.num2) != 'number') || (parseInt(req.body.num2) == 0)) {
                 res.send({message: "The numbers you entered are not valid"});
-            } else res.send({message: "The action was successful", result: parseInt(req.body.num1) / parseInt(req.body.num2)});
+            } else res.send({
+                message: "The action was successful",
+                result: parseInt(req.body.num1) / parseInt(req.body.num2)
+            });
         } else res.json({message: "You are not currently logged in"});
     }
 };

@@ -15,11 +15,30 @@ module.exports = function () {
         findUsersByCredentials: findUsersByCredentials,
         setModel: setModel,
         findUserByUsername: findUserByUsername,
-        getFirstName: getFirstName
+        getFirstName: getFirstName,
+        allFields: allFields,
+        findUser: findUser
 
     };
     return api;
-    
+
+    function allFields(user){
+        console.log("in all fields");
+        
+        return !((user.fname == "" || user.fname == undefined) ||
+        (user.lname == "" || user.lname == undefined) ||
+        (user.address == "" || user.address == undefined) ||
+        (user.city == "" || user.city == undefined) ||
+        (user.state == "" || user.state == undefined) ||
+        (user.email == "" || user.email == undefined) ||
+        (user.username == "" || user.username == undefined) ||
+        (user.password == "" || user.password == undefined));
+    }
+
+    function findUser(user){
+        return UserModel.findOne({username:user.username});
+    }
+
     function getFirstName(username){
         return UserModel.findOne({username: username});
     }

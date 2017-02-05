@@ -38,9 +38,6 @@
                 controller: "ProfileController",
                 controllerAs: "model"
             })
-            // .when("/endpoint", {
-            //     templateUrl: "../../"
-            // })
             .otherwise({
                 redirectTo: "/"
             });

@@ -11,8 +11,13 @@ module.exports = function () {
         {
             username: String,
             password: String,
-            firstName: String,
-            lastName: String
+            fname: String,
+            lname: String,
+            address: String,
+            city: String,
+            state: String,
+            zip: {},
+            email: String
         },
         {collection: "distSystemsUser"});
     return DistSystemsUserSchema;
