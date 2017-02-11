@@ -30,40 +30,43 @@ module.exports = function (app, model) {
     app.post('/add', addition);
     app.post('/multiply', multiply);
     app.post('/divide', divide);
-    app.post('/register', register);
+    app.post('/registerUser', registerUser);
     app.post('/updateInfo', updateInfo);
     app.post('/addProducts', addProducts);
     app.post('/modifyProducts', modifyProducts);
     app.post('/viewUsers', viewUsers);
-    app.post('viewProducts', viewProducts);
+    app.post('/viewProducts', viewProducts);
 
 
-    function register(req, res) {
+    function registerUser(req, res) {
+        console.log("in register user");
+
         var user = req.body;
 
         model.userModel
             .findUser(user)
             .then(function (result) {
+                console.log("in callback");
+                console.log(result);
                 if (result == null) {
                     if (allFields(user)) {
-                        if (result == false) {
+                        console.log("after allFields");
+                        // if (result == false) {
                             model.userModel
                                 .createUser(user)
-                                .then(function (newUser) {
+                                .then(function () {
                                         res.json({message: "The action was successful"})
                                     },
                                     function (error) {
                                         res.sendStatus(400).send(error);
                                     });
-                        }
+                        // }
                     } else res.json({message: "The input you provided is not valid"})
                 } else res.json({message: "The input you provided is not valid"})
             });
     }
 
     function allFields(user) {
-        console.log("in all fields");
-
         return !((user.fname == "" || user.fname == undefined) ||
         (user.lname == "" || user.lname == undefined) ||
         (user.address == "" || user.address == undefined) ||
@@ -75,14 +78,51 @@ module.exports = function (app, model) {
     }
 
     function updateInfo(req, res) {
+        var user = req.user;
+        var payload = req.body;
+
+        model.userModel //todo edge cases, partial input
+            .updateInfo(user, payload)
+            .then(function () {
+                res.json({message: payload.fname + " your information was successfully updated"})
+            });
 
     }
 
     function addProducts(req, res) {
+        var product = req.body;
+
+        model.userModel //todo
+            .isAdmin(req.user)
+            .then(function (result) {
+                if (result.admin == false) {
+                    res.json({message: "You must be an admin to perform this action"})
+                } else model.productModel
+                    .addProducts(product)
+                    .then(function () {
+                        res.json({message: product.productName + " was successfully added to the system"});
+                    });
+            });
+
 
     }
 
     function modifyProducts(req, res) {
+        var newProduct = req.body;
+
+        model.userModel //todo
+            .isAdmin(req.user)
+            .then(function (result) {
+                if (result == false) {
+                    res.json({message: "You must be an admin to perform this action"})
+                }
+                else model.productModel
+                    .modifyProducts(newProduct)
+                    .then(function (updatedProduct) {
+                        res.json({message: updatedProduct.productname + " was successfully updated"});
+                    });
+            });
+
 
     }
 

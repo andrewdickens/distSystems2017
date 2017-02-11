@@ -17,10 +17,24 @@ module.exports = function () {
         findUserByUsername: findUserByUsername,
         getFirstName: getFirstName,
         allFields: allFields,
-        findUser: findUser
+        findUser: findUser,
+        updateInfo: updateInfo,
+        isAdmin: isAdmin
 
     };
     return api;
+
+    function isAdmin(user){
+        return UserModel.findOne({username:user.username});
+    }
+    
+    function updateInfo(user, payload){
+        console.log(user.username);
+        console.log(payload.fname);
+
+        return UserModel.update({username: user.username}, {fname: payload.fname, lname: payload.lname, address: payload.address, city: payload.city,
+            state: payload.state, zip: payload.zip, email: payload.email, password: payload.password});
+    }
 
     function allFields(user){
         console.log("in all fields");
@@ -36,6 +50,8 @@ module.exports = function () {
     }
 
     function findUser(user){
+        console.log("in findUser");
+
         return UserModel.findOne({username:user.username});
     }
 

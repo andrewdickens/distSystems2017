@@ -17,7 +17,8 @@ module.exports = function () {
             city: String,
             state: String,
             zip: {},
-            email: String
+            email: String,
+            admin: Boolean
         },
         {collection: "distSystemsUser"});
     return DistSystemsUserSchema;
