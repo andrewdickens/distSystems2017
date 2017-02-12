@@ -79,7 +79,7 @@ module.exports = function (app, model) {
 
         if (isNotLoggedIn) {
             res.json({message: 'You are not currently logged in'});
-        } else model.userModel //todo need input validation
+        } else model.userModel
             .updateInfo(user, "fname", payload.fname)
             .then(function () {
                 model.userModel
@@ -101,13 +101,20 @@ module.exports = function (app, model) {
                                                             .updateInfo(user, "email", payload.email)
                                                             .then(function () {
                                                                 model.userModel
-                                                                    .updateInfo(user, "username", payload.username)
-                                                                    .then(function () {
-                                                                        model.userModel
-                                                                            .updateInfo(user, "password", payload.password)
-                                                                            .then(function () {
-                                                                                res.json({message: payload.fname + " your information was successfully updated"})
-                                                                            })
+                                                                    .findUsername(payload.username)
+                                                                    .then(function (result) {
+                                                                        if (result != null) {
+                                                                            res.json({message: "The input you provided is not valid"});
+                                                                        } else
+                                                                            model.userModel
+                                                                                .updateInfo(user, "username", payload.username)
+                                                                                .then(function () {
+                                                                                    model.userModel
+                                                                                        .updateInfo(user, "password", payload.password)
+                                                                                        .then(function () {
+                                                                                            res.json({message: payload.fname + " your information was successfully updated"})
+                                                                                        })
+                                                                                })
                                                                     })
                                                             })
                                                     })
@@ -127,8 +134,8 @@ module.exports = function (app, model) {
         } else model.userModel
             .isAdmin(req.user)
             .then(function (result) {
-                if (result.admin == false) {
-                    res.json({message: "You must be an admin to perform this action"})
+                if (result.admin != true) {
+                    res.json({message: "You must be an admin to perform this action"});
                 } else model.productModel
                     .isUniqueASIN(product)
                     .then(function (result) {
@@ -156,7 +163,7 @@ module.exports = function (app, model) {
         } else model.userModel
             .isAdmin(req.user)
             .then(function (result) {
-                if (result == false) {
+                if (result != true) {
                     res.json({message: "You must be an admin to perform this action"})
                 } else model.productModel
                     .isUniqueASIN(newProduct)
@@ -183,7 +190,7 @@ module.exports = function (app, model) {
         } else model.userModel
             .isAdmin(req.user)
             .then(function (result) {
-                if (result.admin == false) {
+                if (result.admin != true) {
                     res.json({message: "You must be an admin to perform this action"});
                 } else if (searchParameters.fname == undefined && searchParameters.lname == undefined) {
                     res.json({message: "There are no users that match that criteria"});

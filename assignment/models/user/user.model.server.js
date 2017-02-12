@@ -19,7 +19,8 @@ module.exports = function () {
         findUser: findUser,
         updateInfo: updateInfo,
         isAdmin: isAdmin,
-        viewUsers: viewUsers
+        viewUsers: viewUsers,
+        findUsername: findUsername
 
     };
     return api;
@@ -57,6 +58,10 @@ module.exports = function () {
         (user.email == "" || user.email == undefined) ||
         (user.username == "" || user.username == undefined) ||
         (user.password == "" || user.password == undefined));
+    }
+    
+    function findUsername(username){
+        return UserModel.findOne({username: username});
     }
 
     function findUser(user){
