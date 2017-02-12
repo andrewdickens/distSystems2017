@@ -6,7 +6,8 @@ module.exports = function () {
     console.log("in user.schema.server");
 
     var mongoose = require("mongoose");
-   
+    var searchable = require('mongoose-searchable');
+
     var DistSystemsUserSchema = mongoose.Schema(
         {
             username: String,
@@ -21,5 +22,8 @@ module.exports = function () {
             admin: Boolean
         },
         {collection: "distSystemsUser"});
+
+    DistSystemsUserSchema.plugin(searchable);
+
     return DistSystemsUserSchema;
 };

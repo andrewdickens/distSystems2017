@@ -52,14 +52,14 @@ module.exports = function (app, model) {
                     if (allFields(user)) {
                         console.log("after allFields");
                         // if (result == false) {
-                            model.userModel
-                                .createUser(user)
-                                .then(function () {
-                                        res.json({message: "The action was successful"})
-                                    },
-                                    function (error) {
-                                        res.sendStatus(400).send(error);
-                                    });
+                        model.userModel
+                            .createUser(user)
+                            .then(function () {
+                                    res.json({message: "The action was successful"})
+                                },
+                                function (error) {
+                                    res.sendStatus(400).send(error);
+                                });
                         // }
                     } else res.json({message: "The input you provided is not valid"})
                 } else res.json({message: "The input you provided is not valid"})
@@ -81,12 +81,44 @@ module.exports = function (app, model) {
         var user = req.user;
         var payload = req.body;
 
-        model.userModel //todo edge cases, partial input
-            .updateInfo(user, payload)
+        model.userModel
+            .updateInfo(user, "fname", payload.fname)
             .then(function () {
-                res.json({message: payload.fname + " your information was successfully updated"})
-            });
+                model.userModel
+                    .updateInfo(user, "lname", payload.lname)
+                    .then(function () {
+                        model.userModel
+                            .updateInfo(user, "address", payload.address)
+                            .then(function () {
+                                model.userModel
+                                    .updateInfo(user, "city", payload.city)
+                                    .then(function () {
+                                        model.userModel
+                                            .updateInfo(user, "state", payload.state)
+                                            .then(function () {
+                                                model.userModel
+                                                    .updateInfo(user, "zip", payload.zip)
+                                                    .then(function () {
+                                                        model.userModel
+                                                            .updateInfo(user, "email", payload.email)
+                                                            .then(function () {
+                                                                model.userModel
+                                                                    .updateInfo(user, "username", payload.username)
+                                                                    .then(function () {
+                                                                        model.userModel
+                                                                            .updateInfo(user, "password", payload.password)
+                                                                            .then(function () {
+                                                                                res.json({message: payload.fname + " your information was successfully updated"})
+                                                                            })
+                                                                    })
+                                                            })
+                                                    })
+                                            })
+                                    })
 
+                            })
+                    })
+            });
     }
 
     function addProducts(req, res) {
@@ -119,7 +151,7 @@ module.exports = function (app, model) {
                 else model.productModel
                     .modifyProducts(newProduct)
                     .then(function (updatedProduct) {
-                        res.json({message: updatedProduct.productname + " was successfully updated"});
+                        res.json({message: updatedProduct.productName + " was successfully updated"});
                     });
             });
 
@@ -128,10 +160,25 @@ module.exports = function (app, model) {
 
     function viewUsers(req, res) {
 
+        model.userModel //todo
+            .viewUsers()
+            .then(function (result) {
+                console.log(result);
+                res.send(200);
+            });
     }
 
     function viewProducts(req, res) {
 
+        var keyword = req.body;
+
+
+        model.productModel  //todo
+            .viewProducts(keyword)
+            .then(function (result) {
+                console.log(result);
+                res.send(200);
+            });
     }
 
     function serializeUser(user, done) {

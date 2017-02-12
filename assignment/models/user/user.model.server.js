@@ -1,12 +1,11 @@
-/**
- * Created by andrewdickens on 11/19/16.
- */
 module.exports = function () {
     console.log("in user.model.server");
 
     var mongoose = require("mongoose");
     var DistSystemsUserSchema = require("./user.schema.server")();
+    // var searchable = require('mongoose-searchable');
     var UserModel = mongoose.model("UserModel", DistSystemsUserSchema);
+    // DistSystemsUserSchema.plugin(searchable);
     var model = {};
 
     var api = {
@@ -19,21 +18,27 @@ module.exports = function () {
         allFields: allFields,
         findUser: findUser,
         updateInfo: updateInfo,
-        isAdmin: isAdmin
+        isAdmin: isAdmin,
+        viewUsers: viewUsers
 
     };
     return api;
+
+    function viewUsers(){
+        return UserModel.find()
+    }
 
     function isAdmin(user){
         return UserModel.findOne({username:user.username});
     }
     
-    function updateInfo(user, payload){
-        console.log(user.username);
-        console.log(payload.fname);
-
-        return UserModel.update({username: user.username}, {fname: payload.fname, lname: payload.lname, address: payload.address, city: payload.city,
-            state: payload.state, zip: payload.zip, email: payload.email, password: payload.password});
+    function updateInfo(user, updatefield, updateValue){
+        
+        var updatePackage = {[updatefield]:updateValue};
+        
+        if (updateValue == undefined){
+            return null;
+        }else return UserModel.update({username: user.username}, updatePackage);
     }
 
     function allFields(user){

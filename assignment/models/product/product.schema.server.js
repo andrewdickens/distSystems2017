@@ -1,19 +1,27 @@
-/**
- * Created by andrewdickens on 11/19/16.
- */
-
 module.exports = function () {
     console.log("in user.schema.server");
 
     var mongoose = require("mongoose");
-
+    var searchable = require('mongoose-searchable');
+    
     var DistSystemsProductSchema = mongoose.Schema(
         {
             asin: {},
-            ProductName: String,
-            ProductDescription: String,
+            productName: String,
+            productDescription: String,
             group: String
         },
         {collection: "distSystemsProduct"});
+
+    DistSystemsProductSchema.plugin(searchable,{
+        keywordField:'keywords',
+        language:'english',
+        fields:['productName','productDescription'],
+        // blacklist:['comic','batman'],
+        extract: function(content, done){
+            done(null, content.split(' '));
+        }
+    });
+
     return DistSystemsProductSchema;
 };
