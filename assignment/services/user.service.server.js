@@ -77,9 +77,9 @@ module.exports = function (app, model) {
         var user = req.user;
         var payload = req.body;
 
-        if(req.user==undefined){
+        if (isNotLoggedIn) {
             res.json({message: 'You are not currently logged in'});
-        }else model.userModel //todo need input validation
+        } else model.userModel //todo need input validation
             .updateInfo(user, "fname", payload.fname)
             .then(function () {
                 model.userModel
@@ -122,48 +122,52 @@ module.exports = function (app, model) {
     function addProducts(req, res) {
         var product = req.body;
 
-        if(req.user==undefined){
+        if (isNotLoggedIn) {
             res.json({message: 'You are not currently logged in'});
-        }else model.userModel
+        } else model.userModel
             .isAdmin(req.user)
             .then(function (result) {
                 if (result.admin == false) {
                     res.json({message: "You must be an admin to perform this action"})
                 } else model.productModel
                     .isUniqueASIN(product)
-                    .then(function(result){
+                    .then(function (result) {
                         console.log(result);
-                        if(result==null) {
+                        if (result == null) {
                             model.productModel
                                 .addProducts(product)
                                 .then(function () {
                                     res.json({message: product.productName + " was successfully added to the system"});
                                 })
-                        } else res.json({message:"The input you provided is invalid"});
+                        } else res.json({message: "The input you provided is invalid"});
                     });
             });
     }
 
+    function isNotLoggedIn(req) {
+        return req.user == undefined;
+    }
+
     function modifyProducts(req, res) {
         var newProduct = req.body;
-        
-        if(req.user==undefined){
+
+        if (isNotLoggedIn(req)) {
             res.json({message: 'You are not currently logged in'});
-        }else model.userModel
+        } else model.userModel
             .isAdmin(req.user)
             .then(function (result) {
                 if (result == false) {
                     res.json({message: "You must be an admin to perform this action"})
                 } else model.productModel
                     .isUniqueASIN(newProduct)
-                    .then(function(result){
-                        if(result!=null) {
+                    .then(function (result) {
+                        if (result != null) {
                             model.productModel
                                 .modifyProducts(newProduct)
                                 .then(function () {
                                     res.json({message: newProduct.productName + " was successfully updated"});
                                 });
-                        }else res.json({message:"The input you provided is invalid"});
+                        } else res.json({message: "The input you provided is invalid"});
                     });
             });
 
@@ -172,12 +176,35 @@ module.exports = function (app, model) {
 
     function viewUsers(req, res) {
 
-        model.userModel //todo
-            .viewUsers()
+        var searchParameters = req.body;
+
+        if (isNotLoggedIn(req)) {
+            res.json({message: 'You are not currently logged in'});
+        } else model.userModel
+            .isAdmin(req.user)
             .then(function (result) {
-                console.log(result);
-                res.send(200);
-            });
+                if (result.admin == false) {
+                    res.json({message: "You must be an admin to perform this action"});
+                } else if (searchParameters.fname == undefined && searchParameters.lname == undefined) {
+                    res.json({message: "There are no users that match that criteria"});
+                } else model.userModel
+                    .viewUsers(searchParameters)
+                    .then(function (result) {
+                        console.log(result);
+                        var jsonResult = [];
+                        var i;
+                        if (result.length == 0) {
+                            res.json({message: "There are no users that match that criteria"});
+                        } else for (i = 0; i < result.length; i++) {
+                            var jsonObject = {};
+                            jsonObject.fname = result[i].fname;
+                            jsonObject.lname = result[i].lname;
+                            jsonObject.userId = result[i]._id;
+                            jsonResult.push(jsonObject);
+                        }
+                        res.json({message: "The action was successful", user: jsonResult});
+                    });
+            })
     }
 
     function viewProducts(req, res) {
@@ -197,7 +224,7 @@ module.exports = function (app, model) {
                     jsonObject.productName = result[i].productName;
                     jsonResult.push(jsonObject);
                 }
-                res.json({product:jsonResult});
+                res.json({product: jsonResult});
             });
     }
 

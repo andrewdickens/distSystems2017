@@ -24,8 +24,15 @@ module.exports = function () {
     };
     return api;
 
-    function viewUsers(){
-        return UserModel.find()
+    function viewUsers(input){
+        if(input.fname==undefined && input.lname!=undefined){
+            return UserModel
+                .find({lname:{"$regex":input.lname, "$options":"i"}});
+        }else if(input.fname!=undefined && input.lname==undefined){
+            return UserModel
+                .find({fname:{"$regex":input.fname, "$options":"i"}});
+        } else return UserModel
+            .find({$and:[{fname:{"$regex":input.fname, "$options":"i"}},{lname:{"$regex":input.lname, "$options":"i"}}]});
     }
 
     function isAdmin(user){
