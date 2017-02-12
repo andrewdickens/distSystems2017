@@ -17,7 +17,6 @@ module.exports = function () {
         keywordField:'keywords',
         language:'english',
         fields:['productName','productDescription'],
-        // blacklist:['comic','batman'],
         extract: function(content, done){
             done(null, content.split(' '));
         }

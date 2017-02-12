@@ -46,12 +46,9 @@ module.exports = function (app, model) {
         model.userModel
             .findUser(user)
             .then(function (result) {
-                console.log("in callback");
                 console.log(result);
                 if (result == null) {
                     if (allFields(user)) {
-                        console.log("after allFields");
-                        // if (result == false) {
                         model.userModel
                             .createUser(user)
                             .then(function () {
@@ -60,7 +57,6 @@ module.exports = function (app, model) {
                                 function (error) {
                                     res.sendStatus(400).send(error);
                                 });
-                        // }
                     } else res.json({message: "The input you provided is not valid"})
                 } else res.json({message: "The input you provided is not valid"})
             });
@@ -186,14 +182,22 @@ module.exports = function (app, model) {
 
     function viewProducts(req, res) {
 
-        var keyword = req.body;
+        var searchParameters = req.body;
 
-
-        model.productModel  //todo
-            .viewProducts(keyword)
+        model.productModel
+            .viewProducts(searchParameters)
             .then(function (result) {
-                console.log(result);
-                res.send(200);
+                var jsonResult = [];
+                var i;
+                if (result.length == 0) {
+                    res.json({message: "There are no products that match that criteria"})
+                } else for (i = 0; i < result.length; i++) {
+                    var jsonObject = {};
+                    jsonObject.asin = result[i].asin;
+                    jsonObject.productName = result[i].productName;
+                    jsonResult.push(jsonObject);
+                }
+                res.json({product:jsonResult});
             });
     }
 
