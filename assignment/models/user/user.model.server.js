@@ -42,8 +42,6 @@ module.exports = function () {
     }
 
     function allFields(user){
-        console.log("in all fields");
-        
         return !((user.fname == "" || user.fname == undefined) ||
         (user.lname == "" || user.lname == undefined) ||
         (user.address == "" || user.address == undefined) ||
@@ -55,8 +53,6 @@ module.exports = function () {
     }
 
     function findUser(user){
-        console.log("in findUser");
-
         return UserModel.findOne({username:user.username});
     }
 
@@ -74,14 +70,10 @@ module.exports = function () {
     }
     
     function findUsersByCredentials(payload) {
-        console.log("username is " + payload.username + " and password is " + payload.password);
         return UserModel.findOne({username: payload.username, password: payload.password});
     }
 
     function createUser(user) {
-        console.log("in createUser [feature.model.server.js]");
-        console.log(user);
-
         return UserModel.create(user);
     }
 

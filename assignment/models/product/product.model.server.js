@@ -11,25 +11,26 @@ module.exports = function () {
         setModel: setModel,
         addProducts: addProducts,
         modifyProducts: modifyProducts,
-        viewProducts: viewProducts
+        viewProducts: viewProducts,
+        isUniqueASIN: isUniqueASIN
     };
     return api;
+    
+    function isUniqueASIN(product){
+        console.log("in isUniqueASIN");
+        return ProductModel.findOne({asin:product.asin});
+    }
     
     function viewProducts(payload){
         var asin = payload.asin;
         var keyword = payload.keyword;
         var group = payload.group;
-
-        // console.log(keyword);
-
+        
         return ProductModel
-            // .find({$or:[{productName:{'$regex': keyword, '$options': 'i'}}, {productDescription:{'regex': keyword, '$options': 'i'}}]})
-            .find({productName:{"$regex": keyword, "$options": "i"}})
+            .find({$or:[{productName:{'$regex': keyword, '$options': 'i'}}, {productDescription:{'$regex': keyword, '$options': 'i'}}]})
             .where('group').equals(group)
             .where('asin').equals(asin);
-        
-        // return ProductModel
-        //     .find({$or:[{asin:"BOX000"}, {asin:'COHDI'}]});
+
     }
     
     function modifyProducts(product){

@@ -81,7 +81,9 @@ module.exports = function (app, model) {
         var user = req.user;
         var payload = req.body;
 
-        model.userModel
+        if(req.user==undefined){
+            res.json({message: 'You are not currently logged in'});
+        }else model.userModel //todo need input validation
             .updateInfo(user, "fname", payload.fname)
             .then(function () {
                 model.userModel
@@ -135,23 +137,28 @@ module.exports = function (app, model) {
                         res.json({message: product.productName + " was successfully added to the system"});
                     });
             });
-
-
     }
 
     function modifyProducts(req, res) {
         var newProduct = req.body;
-
-        model.userModel //todo
+        
+        if(req.user==undefined){
+            res.json({message: 'You are not currently logged in'});
+        }else model.userModel
             .isAdmin(req.user)
             .then(function (result) {
                 if (result == false) {
                     res.json({message: "You must be an admin to perform this action"})
-                }
-                else model.productModel
-                    .modifyProducts(newProduct)
-                    .then(function (updatedProduct) {
-                        res.json({message: updatedProduct.productName + " was successfully updated"});
+                } else model.productModel
+                    .isUniqueASIN(newProduct)
+                    .then(function(result){
+                        if(result!=null) {
+                            model.productModel
+                                .modifyProducts(newProduct)
+                                .then(function () {
+                                    res.json({message: newProduct.productName + " was successfully updated"});
+                                });
+                        }else res.json({message:"The input you provided is invalid"});
                     });
             });
 
@@ -182,14 +189,10 @@ module.exports = function (app, model) {
     }
 
     function serializeUser(user, done) {
-        console.log("in serialize user");
-        console.log(user);
         done(null, user);
     }
 
     function deserializeUser(user, done) {
-        console.log("in deserialize user");
-        console.log(user);
         model.userModel
             .findUserById(user._id)
             .then(function (user) {
@@ -208,14 +211,10 @@ module.exports = function (app, model) {
     }
 
     function jsonStrategy(username, password, done) {
-        console.log("inside json strategy");
-        console.log(username);
-        console.log(password);
 
         model.userModel
             .findUsersByCredentials({username: username, password: password})
             .then(function (user) {
-                    console.log("user is " + user);
                     if (!user) {
 
                         var nullUser = {username: null, password: null};
@@ -231,9 +230,6 @@ module.exports = function (app, model) {
     }
 
     function login(req, res) {
-        console.log("in login");
-        console.log(req.body);
-
         var user = req.user;
 
         if (user.username == null) {
@@ -269,6 +265,7 @@ module.exports = function (app, model) {
     }
 
     function divide(req, res) {
+
         if (req.user) {
             console.log(req.body);
 
