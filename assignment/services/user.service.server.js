@@ -126,15 +126,24 @@ module.exports = function (app, model) {
     function addProducts(req, res) {
         var product = req.body;
 
-        model.userModel //todo
+        if(req.user==undefined){
+            res.json({message: 'You are not currently logged in'});
+        }else model.userModel
             .isAdmin(req.user)
             .then(function (result) {
                 if (result.admin == false) {
                     res.json({message: "You must be an admin to perform this action"})
                 } else model.productModel
-                    .addProducts(product)
-                    .then(function () {
-                        res.json({message: product.productName + " was successfully added to the system"});
+                    .isUniqueASIN(product)
+                    .then(function(result){
+                        console.log(result);
+                        if(result==null) {
+                            model.productModel
+                                .addProducts(product)
+                                .then(function () {
+                                    res.json({message: product.productName + " was successfully added to the system"});
+                                })
+                        } else res.json({message:"The input you provided is invalid"});
                     });
             });
     }
