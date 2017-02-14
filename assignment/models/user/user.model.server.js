@@ -3,9 +3,7 @@ module.exports = function () {
 
     var mongoose = require("mongoose");
     var DistSystemsUserSchema = require("./user.schema.server")();
-    // var searchable = require('mongoose-searchable');
     var UserModel = mongoose.model("UserModel", DistSystemsUserSchema);
-    // DistSystemsUserSchema.plugin(searchable);
     var model = {};
 
     var api = {
@@ -46,10 +44,7 @@ module.exports = function () {
 	var key = updatefield;
 	var updatePackage = {};
 	updatePackage[key] = updateValue;
- 
-       // var updatePackage = {[updatefield]:updateValue};
-       // var updatePackage = "test"
-
+        
         if (updateValue == undefined){
             return UserModel.update({username:user.username});
         }else return UserModel.update({username: user.username}, updatePackage);
