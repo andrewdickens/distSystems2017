@@ -1,0 +1,53 @@
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <span class="navbar-brand">
+                Functions
+            </span>
+        </div>
+    </div>
+</nav>
+
+
+<div class="container">
+
+    <form>
+        <div class="form-group">
+            <label for="add1">Addition</label>
+            <input ng-model="addNumber1" type="text" class="form-control" id="add1" placeholder="Enter first number to add">
+
+            <input ng-model="addNumber2" type="text" class="form-control" id="add2" placeholder="Enter second number to add">
+            <a ng-click="model.add(addNumber1, addNumber2, true)" class="btn btn-primary btn-block">Add!</a>
+
+        </div>
+
+        <div class="form-group">
+            <label for="divide1">Divide</label>
+            <input ng-model="divideNumber1" type="text" class="form-control" id="divide1" placeholder="Enter first number to divide">
+
+            <input ng-model="divideNumber2" type="text" class="form-control" id="divide2" placeholder="Enter second number to divide">
+            <a ng-click="model.divide(divideNumber1, divideNumber2, true)" class="btn btn-primary btn-block">Divide!</a>
+
+        </div>
+
+        <div class="form-group">
+            <label for="multiply1">Multiply</label>
+            <input ng-model="multiplyNumber1" type="text" class="form-control" id="multiply1" placeholder="Enter first number to multiply">
+
+            <input ng-model="multiplyNumber2" type="text" class="form-control" id="multiply2" placeholder="Enter second number to multiply">
+            <a ng-click="model.multiply(multiplyNumber1, multiplyNumber2, true)" class="btn btn-primary btn-block">Multiply!</a>
+
+        </div>
+
+        <a ng-click="model.logout()" class="btn btn-danger btn-block">Logout</a>
+
+    </form>
+
+</div>
+
+<nav class="navbar navbar-default navbar-fixed-bottom">
+    <div class="container-fluid">
+        <div class="navbar-footer">
+        </div>
+    </div>
+</nav>

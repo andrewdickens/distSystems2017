@@ -52,7 +52,7 @@ module.exports = function (app, model) {
                         model.userModel
                             .createUser(user)
                             .then(function () {
-                                    res.json({message: user.fname + " was successfully registered"})
+                                    res.json({message: user.fname + " was registered successfully"})
                                 },
                                 function (error) {
                                     res.sendStatus(400).send(error);
