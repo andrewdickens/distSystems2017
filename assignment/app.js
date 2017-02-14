@@ -1,7 +1,3 @@
-/**
- * Created by andrewdickens on 11/5/16.
- */
-
 module.exports = function(app){
     var model = require("./models/model.server")();
 
