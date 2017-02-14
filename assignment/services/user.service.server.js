@@ -77,7 +77,8 @@ module.exports = function (app, model) {
         var user = req.user;
         var payload = req.body;
 
-        if (isNotLoggedIn) {
+        if (isNotLoggedIn(req)) {
+		console.log(req.user.username);
             res.json({message: 'You are not currently logged in'});
         } else model.userModel
             .updateInfo(user, "fname", payload.fname)
@@ -103,7 +104,7 @@ module.exports = function (app, model) {
                                                                 model.userModel
                                                                     .findUsername(payload.username)
                                                                     .then(function (result) {
-                                                                        if (result != null) {
+                                                                        if (result == null) {
                                                                             res.json({message: "The input you provided is not valid"});
                                                                         } else
                                                                             model.userModel
@@ -112,7 +113,7 @@ module.exports = function (app, model) {
                                                                                     model.userModel
                                                                                         .updateInfo(user, "password", payload.password)
                                                                                         .then(function () {
-                                                                                            res.json({message: payload.fname + " your information was successfully updated"})
+                                                                                            res.json({message: req.user.fname + " your information was successfully updated"})
                                                                                         })
                                                                                 })
                                                                     })
@@ -129,7 +130,7 @@ module.exports = function (app, model) {
     function addProducts(req, res) {
         var product = req.body;
 
-        if (isNotLoggedIn) {
+        if (isNotLoggedIn(req)) {
             res.json({message: 'You are not currently logged in'});
         } else model.userModel
             .isAdmin(req.user)
@@ -247,7 +248,7 @@ module.exports = function (app, model) {
                 },
                 function (err) {
                     done(err, null);
-                });
+     });           
     }
 
     function logout(req, res) {

@@ -41,11 +41,17 @@ module.exports = function () {
     }
     
     function updateInfo(user, updatefield, updateValue){
-        
-        var updatePackage = {[updatefield]:updateValue};
-        
+      
+
+	var key = updatefield;
+	var updatePackage = {};
+	updatePackage[key] = updateValue;
+ 
+       // var updatePackage = {[updatefield]:updateValue};
+       // var updatePackage = "test"
+
         if (updateValue == undefined){
-            return null;
+            return UserModel.update({username:user.username});
         }else return UserModel.update({username: user.username}, updatePackage);
     }
 
