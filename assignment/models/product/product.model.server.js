@@ -16,10 +16,12 @@ module.exports = function () {
     return api;
 
     function isUniqueASIN(product) {
-        return ProductModel.findOne({asin: product.asin});
+        console.log(product.asin);
+        // console.log(ProductModel.findOne({asin:product.asin}));
+        return ProductModel.find({asin: product.asin});
     }
 
-    function noValues(asin, keyword, group){
+    function noValues(asin, keyword, group) {
         return asin == undefined && keyword == undefined && group == undefined;
     }
 
@@ -54,12 +56,12 @@ module.exports = function () {
 
         console.log(asin);
 
-        if(noValues(asin, keyword, group)){
+        if (noValues(asin, keyword, group)) {
             return ProductModel
                 .find({});
-        }else if (groupOnly(asin, keyword, group)) {
+        } else if (groupOnly(asin, keyword, group)) {
             return ProductModel
-                .find({group:group})
+                .find({group: group})
         } else if (asinOnly(asin, keyword, group)) {
             return ProductModel
                 .find({asin: asin});
@@ -114,9 +116,11 @@ module.exports = function () {
     }
 
     function modifyProducts(product) {
-        return ProductModel.update({asin: product.username}, {
-            ProductName: product.ProductName,
-            ProductDescription: product.ProductDescription
+        console.log(product);
+        return ProductModel
+            .findOneAndUpdate({asin: product.asin}, {
+                productName: product.productName,
+                productDescription: product.productDescription
         });
     }
 

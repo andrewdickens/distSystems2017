@@ -164,15 +164,17 @@ module.exports = function (app, model) {
         } else model.userModel
             .isAdmin(req.user)
             .then(function (result) {
-                if (result != true) {
+                if (result.admin != true) {
                     res.json({message: "You must be an admin to perform this action"})
                 } else model.productModel
                     .isUniqueASIN(newProduct)
                     .then(function (result) {
+                        console.log("the result of unique ASIN is " +result);
                         if (result != null) {
                             model.productModel
                                 .modifyProducts(newProduct)
-                                .then(function () {
+                                .then(function (result) {
+                                    console.log(result);
                                     res.json({message: newProduct.productName + " was successfully updated"});
                                 });
                         } else res.json({message: "The input you provided is invalid"});
