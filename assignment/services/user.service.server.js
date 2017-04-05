@@ -39,6 +39,7 @@ module.exports = function (app, model) {
     app.post('/viewUsers', viewUsers);
     app.post('/viewProducts', viewProducts);
     app.post('/addProductsJSON', addProductsJSON);
+    app.post('/resetDatabase', resetDatabase);
 
 
     function registerUser(req, res) {
@@ -395,5 +396,31 @@ module.exports = function (app, model) {
             return (this.length > n) ? this.substr(0, n-1) : this;
         };
 
-    
+    function resetDatabase(req, res){
+        model.productModel
+            .removeAll()
+            .then(function(){
+                res.send(200);
+            });
+
+        model.userModel
+            .removeAll()
+            .then(function(){
+                model.userModel.
+                    createUser({"fname": "Jenny",
+                        "lname": "Admin",
+                        "address": "555 Tree Ave",
+                        "city": "Tacoma",
+                        "state": "WA",
+                        "zip": "98111",
+                        "email": "Jenny@gmail.com",
+                        "username": "jadmin",
+                        "password": "admin",
+                        "admin": true})
+                    .then(function(){
+                        res.send(200);
+                    })
+            })
+    }
+
 };

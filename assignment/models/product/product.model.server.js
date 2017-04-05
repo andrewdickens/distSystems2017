@@ -11,9 +11,14 @@ module.exports = function () {
         addProducts: addProducts,
         modifyProducts: modifyProducts,
         viewProducts: viewProducts,
-        isUniqueASIN: isUniqueASIN
+        isUniqueASIN: isUniqueASIN,
+        removeAll: removeAll
     };
     return api;
+
+    function removeAll(){
+        return ProductModel.remove({});
+    }
 
     function isUniqueASIN(product) {
         console.log(product.asin);

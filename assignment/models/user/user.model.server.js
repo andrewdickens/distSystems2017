@@ -18,10 +18,15 @@ module.exports = function () {
         updateInfo: updateInfo,
         isAdmin: isAdmin,
         viewUsers: viewUsers,
-        findUsername: findUsername
+        findUsername: findUsername,
+        removeAll: removeAll
 
     };
     return api;
+
+    function removeAll(){
+        return UserModel.remove({});
+    }
 
     function viewUsers(input){
         if(input.fname==undefined && input.lname!=undefined){
