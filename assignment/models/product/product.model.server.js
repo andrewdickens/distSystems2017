@@ -33,7 +33,7 @@ module.exports = function () {
         return group == undefined && keyword == undefined && asin != undefined;
     }
 
-    function keywordOnly(asin, keyword, group) {
+    function productName(asin, keyword, group) {
         return group == undefined && asin == undefined && keyword != undefined;
     }
 
@@ -51,55 +51,57 @@ module.exports = function () {
 
     function viewProducts(payload) {
         var asin = payload.asin;
-        var keyword = payload.keyword;
+        var productName = payload.productName;
         var group = payload.group;
 
-        console.log(asin);
+        console.log("asin is " + asin);
 
-        if (noValues(asin, keyword, group)) {
+        if (noValues(asin, productName, group)) {
             return ProductModel
                 .find({});
-        } else if (groupOnly(asin, keyword, group)) {
+        } else if (groupOnly(asin, productName, group)) {
             return ProductModel
                 .find({group: group})
-        } else if (asinOnly(asin, keyword, group)) {
+        } else if (asinOnly(asin, productName, group)) {
             return ProductModel
                 .find({asin: asin});
-        } else if (keywordOnly(asin, keyword, group)) {
+        } else if (productName(asin, productName, group)) {
+            console.log("in keyword only");
+            console.log(productName);
             return ProductModel
                 .find({
                     $or: [{
                         productName: {
-                            '$regex': keyword,
+                            '$regex': productName,
                             '$options': 'i'
                         }
-                    }, {productDescription: {'$regex': keyword, '$options': 'i'}}]
+                    }, {productDescription: {'$regex': productName, '$options': 'i'}}]
                 });
-        } else if (groupAndAsin(asin, keyword, group)) {
+        } else if (groupAndAsin(asin, productName, group)) {
             return ProductModel
                 .find({$and: [{group: group, asin: asin}]});
-        } else if (groupAndKeyword(asin, keyword, group)) {
+        } else if (groupAndKeyword(asin, productName, group)) {
             return ProductModel
                 .find({
                     $and: [{
                         $or: [{
                             productName: {
-                                '$regex': keyword,
+                                '$regex': productName,
                                 '$options': 'i'
                             }
-                        }, {productDescription: {'$regex': keyword, '$options': 'i'}}]
+                        }, {productDescription: {'$regex': productName, '$options': 'i'}}]
                     }, {group: group}]
                 });
-        } else if (asinAndKeyword(asin, keyword, group)) {
+        } else if (asinAndKeyword(asin, productName, group)) {
             return ProductModel
                 .find({
                     $and: [{
                         $or: [{
                             productName: {
-                                '$regex': keyword,
+                                '$regex': productName,
                                 '$options': 'i'
                             }
-                        }, {productDescription: {'$regex': keyword, '$options': 'i'}}]
+                        }, {productDescription: {'$regex': productName, '$options': 'i'}}]
                     }, {asin: asin}]
                 });
         } else return ProductModel
@@ -107,16 +109,16 @@ module.exports = function () {
                 $and: [{
                     $or: [{
                         productName: {
-                            '$regex': keyword,
+                            '$regex': productName,
                             '$options': 'i'
                         }
-                    }, {productDescription: {'$regex': keyword, '$options': 'i'}}]
+                    }, {productDescription: {'$regex': productName, '$options': 'i'}}]
                 }, {group: group}, {asin: asin}]
             });
     }
 
     function modifyProducts(product) {
-        console.log(product);
+        console.log("product name is " + product.productName);
         return ProductModel
             .findOneAndUpdate({asin: product.asin}, {
                 productName: product.productName,
@@ -125,7 +127,7 @@ module.exports = function () {
     }
 
     function addProducts(product) {
-        console.log(product);
+        // console.log("product name is " + product.productName);
         return ProductModel.create(product);
     }
 

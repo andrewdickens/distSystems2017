@@ -10,6 +10,8 @@ module.exports = function (app, model) {
     var cookieParser = require('cookie-parser');
     var session = require('express-session');
 
+    var lineReader = require('line-reader');
+
     app.use(session({
         secret: 'this is the secret',
         resave: true,
@@ -36,6 +38,7 @@ module.exports = function (app, model) {
     app.post('/modifyProducts', modifyProducts);
     app.post('/viewUsers', viewUsers);
     app.post('/viewProducts', viewProducts);
+    app.post('/addProductsJSON', addProductsJSON);
 
 
     function registerUser(req, res) {
@@ -78,7 +81,7 @@ module.exports = function (app, model) {
         var payload = req.body;
 
         if (isNotLoggedIn(req)) {
-		console.log(req.user.username);
+            console.log(req.user.username);
             res.json({message: 'You are not currently logged in'});
         } else model.userModel
             .updateInfo(user, "fname", payload.fname)
@@ -169,7 +172,7 @@ module.exports = function (app, model) {
                 } else model.productModel
                     .isUniqueASIN(newProduct)
                     .then(function (result) {
-                        console.log("the result of unique ASIN is " +result);
+                        console.log("the result of unique ASIN is " + result);
                         if (result != null) {
                             model.productModel
                                 .modifyProducts(newProduct)
@@ -250,7 +253,7 @@ module.exports = function (app, model) {
                 },
                 function (err) {
                     done(err, null);
-     });           
+                });
     }
 
     function logout(req, res) {
@@ -327,4 +330,69 @@ module.exports = function (app, model) {
             });
         } else res.json({message: "You are not currently logged in"});
     }
+
+    function addProductsJSON(req, res) {
+
+        var jsonRecord;
+        var execute = true;
+
+        var fileName = "productRecords.json";
+
+        lineReader.eachLine(fileName, function (line, last) {
+            var values={}; //The records read from the file.
+
+            execute = false;
+            currentLine = line.toString();
+            try {
+                jsonRecord = JSON.parse(currentLine);
+                console.log(jsonRecord);
+                console.log(currentLine);
+
+                values.productName = jsonRecord.title.trunc(100);
+                // values.group = jsonRecord.categories;
+                values.productDescription = jsonRecord.description;
+                values.asin = jsonRecord.asin;
+
+                console.log(values.productName);
+                console.log(values.productDescription);
+                console.log(jsonRecord.categories);
+                var groupArray = [];
+
+                groupArray.push(jsonRecord.categories[0][0]);
+
+                for(var i=0; i<jsonRecord.categories.length; i++){
+                    for(var x=1; x<jsonRecord.categories[i].length; x++){
+                        // console.log(values.group[i][x]);
+                        groupArray.push(jsonRecord.categories[i][x])
+                    }
+                }
+
+                console.log(groupArray);
+
+                values.group = groupArray;
+                console.log(values);
+
+                // console.log("The title before sending is " + values.productName);
+
+                model.productModel
+                    .addProducts(values)
+                    .then(function () {
+                        console.log("added product");
+                    });
+            }
+            catch (err) {
+                execute = false;//there was a quote in the text and the parse failed ... skip insert
+                console.log("There was an error");
+                console.log(err);
+            }
+
+        });
+    }
+
+    String.prototype.trunc = String.prototype.trunc ||
+        function(n){
+            return (this.length > n) ? this.substr(0, n-1) : this;
+        };
+
+    
 };

@@ -6,12 +6,12 @@ module.exports = function () {
     
     var DistSystemsProductSchema = mongoose.Schema(
         {
-            asin: {},
+            asin: String,
             productName: String,
             productDescription: String,
-            group: String
+            group: [String]
         },
-        {collection: "distSystemsProduct"});
+        {collection: "distSystemsProducts"});
 
     DistSystemsProductSchema.plugin(searchable,{
         keywordField:'keywords',
