@@ -9,7 +9,7 @@ module.exports = function () {
             asin: String,
             productName: String,
             productDescription: String,
-            group: [String]
+            group: String
         },
         {collection: "distSystemsProducts"});
 

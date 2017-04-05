@@ -143,8 +143,9 @@ module.exports = function (app, model) {
                 } else model.productModel
                     .isUniqueASIN(product)
                     .then(function (result) {
+                        console.log("in result");
                         console.log(result);
-                        if (result == null) {
+                        if (result == null || []) {
                             model.productModel
                                 .addProducts(product)
                                 .then(function () {

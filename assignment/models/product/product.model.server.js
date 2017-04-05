@@ -127,7 +127,7 @@ module.exports = function () {
     }
 
     function addProducts(product) {
-        // console.log("product name is " + product.productName);
+        console.log("product name is " + product.productName);
         return ProductModel.create(product);
     }
 
