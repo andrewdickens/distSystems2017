@@ -38,7 +38,7 @@ module.exports = function () {
         return group == undefined && keyword == undefined && asin != undefined;
     }
 
-    function productName(asin, keyword, group) {
+    function productOnly(asin, keyword, group) {
         return group == undefined && asin == undefined && keyword != undefined;
     }
 
@@ -70,7 +70,7 @@ module.exports = function () {
         } else if (asinOnly(asin, productName, group)) {
             return ProductModel
                 .find({asin: asin});
-        } else if (productName(asin, productName, group)) {
+        } else if (productOnly(asin, productName, group)) {
             console.log("in keyword only");
             console.log(productName);
             return ProductModel
