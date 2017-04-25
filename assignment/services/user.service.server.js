@@ -40,7 +40,65 @@ module.exports = function (app, model) {
     app.post('/viewProducts', viewProducts);
     app.post('/addProductsJSON', addProductsJSON);
     app.post('/resetDatabase', resetDatabase);
+    app.post('/buyProducts', buyProducts);
+    app.post('/productsPurchased', productsPurchased);
+    app.post('/getRecommendations', getRecommendations);
 
+    function getRecommendations(req, res){
+        if (isNotLoggedIn(req)) {
+            res.json({message: 'You are not currently logged in'});
+        } else model.recommendationsModel
+            .findRecommendations(req.body)
+            .then(function(result){
+                if(result==null||[]){
+                    res.json({message: 'There are no recommendations for that product'})
+                } else res.json({}); //todo
+            })
+    }
+
+    function productsPurchased(req, res) {
+        if (isNotLoggedIn(req)) {
+            res.json({message: 'You are not currently logged in'});
+        } else model.userModel
+            .isAdmin(req.user)
+            .then(function (result) {
+                if (result.admin != true) {
+                    res.json({message: "You must be an admin to perform this action"});
+                } else model.purchasesModel
+                    .productsPurchased(req.user.username)
+                    .then(function (result) {
+                        if (result == null || []) {
+                            res.json({message: 'There are no users that match that criteria'})
+                        } else res.json({message: ''}); //todo
+
+                    });
+            });
+    }
+
+    function buyProducts(req, res) {
+        var payload = {username: req.user.username, asins: req.body.products};
+
+        if (isNotLoggedIn(req)) {
+            console.log(req.user.username);
+            res.json({message: 'You are not currently logged in'});
+        } else model.productModel
+            .findProducts(payload)
+            .then(function (result) {
+                if (result == false) {
+                    res.json({message: 'There are no products that match that criteria'})
+                } else model.purchasesModel
+                    .buyProducts(payload)
+                    .then(function (result) {
+                        console.log(result);
+                        model.recommendationsModel
+                            .createRecommendations(payload)
+                            .then(function(){
+                                res.json({message: 'The action was successful'});
+                            });
+                        res.json({message: 'The action was successful'})
+                    })
+            });
+    }
 
     function registerUser(req, res) {
         console.log("in register user");
@@ -341,7 +399,7 @@ module.exports = function (app, model) {
         var fileName = "productRecords.json";
 
         lineReader.eachLine(fileName, function (line, last) {
-            var values={}; //The records read from the file.
+            var values = {}; //The records read from the file.
 
             execute = false;
             currentLine = line.toString();
@@ -362,8 +420,8 @@ module.exports = function (app, model) {
 
                 groupArray.push(jsonRecord.categories[0][0]);
 
-                for(var i=0; i<jsonRecord.categories.length; i++){
-                    for(var x=1; x<jsonRecord.categories[i].length; x++){
+                for (var i = 0; i < jsonRecord.categories.length; i++) {
+                    for (var x = 1; x < jsonRecord.categories[i].length; x++) {
                         // console.log(values.group[i][x]);
                         groupArray.push(jsonRecord.categories[i][x])
                     }
@@ -392,32 +450,33 @@ module.exports = function (app, model) {
     }
 
     String.prototype.trunc = String.prototype.trunc ||
-        function(n){
-            return (this.length > n) ? this.substr(0, n-1) : this;
+        function (n) {
+            return (this.length > n) ? this.substr(0, n - 1) : this;
         };
 
-    function resetDatabase(req, res){
+    function resetDatabase(req, res) {
         model.productModel
             .removeAll()
-            .then(function(){
+            .then(function () {
                 res.send(200);
             });
 
         model.userModel
             .removeAll()
-            .then(function(){
-                model.userModel.
-                    createUser({"fname": "Jenny",
-                        "lname": "Admin",
-                        "address": "555 Tree Ave",
-                        "city": "Tacoma",
-                        "state": "WA",
-                        "zip": "98111",
-                        "email": "Jenny@gmail.com",
-                        "username": "jadmin",
-                        "password": "admin",
-                        "admin": true})
-                    .then(function(){
+            .then(function () {
+                model.userModel.createUser({
+                    "fname": "Jenny",
+                    "lname": "Admin",
+                    "address": "555 Tree Ave",
+                    "city": "Tacoma",
+                    "state": "WA",
+                    "zip": "98111",
+                    "email": "Jenny@gmail.com",
+                    "username": "jadmin",
+                    "password": "admin",
+                    "admin": true
+                })
+                    .then(function () {
                         res.send(200);
                     })
             })

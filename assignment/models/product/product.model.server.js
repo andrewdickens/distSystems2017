@@ -12,10 +12,36 @@ module.exports = function () {
         modifyProducts: modifyProducts,
         viewProducts: viewProducts,
         isUniqueASIN: isUniqueASIN,
-        removeAll: removeAll
+        removeAll: removeAll,
+        findProducts: findProducts
     };
     return api;
 
+    function findProducts(payload){
+        // var products = payload.asins;
+
+        for(x=0; x<payload.asins.length; x++){
+            ProductModel.find(payload.asins[x])
+                .then(function(result){
+                    if (result == null || []){
+                        return false;
+                    }
+                });
+        }
+        return true;
+    }
+
+    function findAllProducts(products){
+        for(x=0; x<products.length; x++){
+            ProductModel.find(products[x])
+                .then(function(result){
+                    if (result == null || []){
+                        return false;
+                    }
+                });
+        }
+        return true;
+    }
     function removeAll(){
         return ProductModel.remove({});
     }

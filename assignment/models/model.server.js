@@ -9,16 +9,21 @@ module.exports = function () {
 
     var userModel = require("./user/user.model.server")();
     var productModel = require("./product/product.model.server")();
+    var purchasesModel = require("./purchases/purchases.model.server")();
+    var recommendationsModel = require("./recommendations/recommendations.model.server")();
 
-    
     var model = {
         userModel: userModel,
-        productModel: productModel
+        productModel: productModel,
+        purchasesModel: productModel,
+        recommendationsModel: recommendationsModel
     };
 
     userModel.setModel(model);
     productModel.setModel(model);
-
+    purchasesModel.setModel(model);
+    recommendationsModel.setModel(model);
+    
     return model;
 
 };
