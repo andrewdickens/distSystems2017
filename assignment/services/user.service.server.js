@@ -50,9 +50,18 @@ module.exports = function (app, model) {
         } else model.recommendationsModel
             .findRecommendations(req.body)
             .then(function (result) {
-                if (result == null || []) {
+                if (result == []) {
                     res.json({message: 'There are no recommendations for that product'})
-                } else res.json({}); //todo
+                } else {
+             
+                    var returnResult = [];
+
+                    result[0].recommendations.forEach(function(recommendation){
+                        returnResult.push({asin: recommendation.asin})
+                    });
+                    
+                    res.json({message: 'The action was successful', products:returnResult}); //todo
+                }
             })
     }
 
@@ -115,28 +124,19 @@ module.exports = function (app, model) {
             res.json({message: 'You are not currently logged in'});
         } else if (!isNotLoggedIn(req)) {
             payload = {username: req.user.username, asins: req.body.products};
-            // console.log(payload);
             for (x; x < payload.asins.length; x++) {
                 model.productModel
                     .findProduct(payload.asins[x].asin)
                     .then(function (result) {
-                        // console.log("in findProduct callback");
-                        // console.log(result);
-                        // console.log("x is " + x);
                         if (result == null) {
                             res.json({message: 'There are no products that match that criteria'})
                         } else if (x == payload.asins.length) {
-                            // console.log("in AFTER x ==2");
                             x++;
                             model.purchasesModel
                                 .buyProducts(payload)
-                                .then(function (result) {
+                                .then(function () {
                                     console.log("buyProducts callback");
-                                    console.log(result);
-                                    var y = 0;
-                                    // for(y; y<payload.asins.length; y++) {
                                     payload.asins.forEach(function (asin) {
-                                        // var t=y;
                                         model.recommendationsModel
                                             .findRecommendations(asin)
                                             .then(function (result) {
@@ -153,14 +153,12 @@ module.exports = function (app, model) {
                                                     console.log("old rec");
                                                     model.recommendationsModel
                                                         .editRecommendation(asin, payload, result[0])
-                                                        .then(function (result) {
-                                                            console.log(result);
+                                                        .then(function () {
                                                             res.json({message: 'The action was successful'});
                                                         });
                                                 }
                                             });
                                     });
-                                    // res.json({message: 'The action was successful'});
                                 });
                         }
                     });
