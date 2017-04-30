@@ -11,21 +11,30 @@ module.exports = function () {
         createRecommendations: createRecommendations,
         findRecommendations: findRecommendations,
         createNewRecommendation: createNewRecommendation,
-        editRecommendation: editRecommendation
+        editRecommendation: editRecommendation,
+        matchRecommendations: matchRecommendations
     };
     return api;
 
     function editRecommendation(asin, payload, result) {
         console.log("in edit Recommendation");
 
+        console.log(payload);
+        console.log(asin);
         console.log(result);
+        var bool = false;
 
         for (var x = 0; x < payload.asins.length; x++) {
             for (var y = 0; y < result.recommendations.length; y++) {
                 if (payload.asins[x].asin == result.recommendations[y].asin) {
                     result.recommendations[y].count++;
+                    bool = true;
                 }
             }
+        }
+
+        if(bool==false){
+            return createNewRecommendation(asin, payload);
         }
 
         return RecommendationsModel.update({_id: result._id}, result);
@@ -51,6 +60,25 @@ module.exports = function () {
         console.log(asin);
 
         return RecommendationsModel.find({asin: asin.asin});
+    }
+
+    function matchRecommendations(asin, payload) {
+        console.log("in matchRecommendations");
+        console.log(asin);
+
+        var json = {asin:asin.asin, recommendations:[]};
+
+        payload.asins.forEach(function(products){
+            if(products.asin != asin.asin){
+                console.log(products.asin);
+                console.log(asin.asin);
+                json.recommendations.push(products);
+            }
+        });
+
+        console.log(json);
+
+        return RecommendationsModel.find(json);
     }
 
     function createRecommendations(payload) {

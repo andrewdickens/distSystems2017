@@ -53,14 +53,14 @@ module.exports = function (app, model) {
                 if (result == []) {
                     res.json({message: 'There are no recommendations for that product'})
                 } else {
-             
+
                     var returnResult = [];
 
-                    result[0].recommendations.forEach(function(recommendation){
+                    result[0].recommendations.forEach(function (recommendation) {
                         returnResult.push({asin: recommendation.asin})
                     });
-                    
-                    res.json({message: 'The action was successful', products:returnResult}); //todo
+
+                    res.json({message: 'The action was successful', products: returnResult}); //todo
                 }
             })
     }
@@ -124,45 +124,46 @@ module.exports = function (app, model) {
             res.json({message: 'You are not currently logged in'});
         } else if (!isNotLoggedIn(req)) {
             payload = {username: req.user.username, asins: req.body.products};
-            for (x; x < payload.asins.length; x++) {
+
+            console.log(req.body.products);
+            req.body.products.forEach(function (products) {
                 model.productModel
-                    .findProduct(payload.asins[x].asin)
+                    .findProduct(products.asin)
                     .then(function (result) {
+                        console.log(result);
                         if (result == null) {
                             res.json({message: 'There are no products that match that criteria'})
-                        } else if (x == payload.asins.length) {
-                            x++;
-                            model.purchasesModel
-                                .buyProducts(payload)
-                                .then(function () {
-                                    console.log("buyProducts callback");
-                                    payload.asins.forEach(function (asin) {
-                                        model.recommendationsModel
-                                            .findRecommendations(asin)
-                                            .then(function (result) {
-                                                console.log("in find recommendations callback");
-                                                console.log(result);
-                                                if (result[0] == null || result[0] == []) {
-                                                    console.log("new rec");
-                                                    model.recommendationsModel
-                                                        .createNewRecommendation(asin, payload)
-                                                        .then(function () {
-                                                            res.json({message: 'The action was successful'});
-                                                        })
-                                                } else {
-                                                    console.log("old rec");
-                                                    model.recommendationsModel
-                                                        .editRecommendation(asin, payload, result[0])
-                                                        .then(function () {
-                                                            res.json({message: 'The action was successful'});
-                                                        });
-                                                }
-                                            });
-                                    });
-                                });
                         }
                     });
-            }
+            });
+            model.purchasesModel
+                .buyProducts(payload)
+                .then(function () {
+                    console.log("buyProducts callback");
+                    payload.asins.forEach(function (asin) {
+                        model.recommendationsModel
+                            .matchRecommendations(asin, payload)
+                            .then(function (result) {
+                                console.log("in matchRecommendations callback");
+                                console.log(result);
+                                if (result[0] == null || result[0] == []) {
+                                    console.log("new rec");
+                                    model.recommendationsModel
+                                        .createNewRecommendation(asin, payload)
+                                        .then(function () {
+                                            res.json({message: 'The action was successful'});
+                                        })
+                                } else {
+                                    console.log("old rec");
+                                    model.recommendationsModel
+                                        .editRecommendation(asin, payload, result[0])
+                                        .then(function () {
+                                            res.json({message: 'The action was successful'});
+                                        });
+                                }
+                            });
+                    });
+                });
         }
     }
 

@@ -23,9 +23,9 @@ module.exports = function () {
     }
     
     function buyProducts(payload){
-        console.log("in buyProducts");
-        console.log(payload.asins[0]);
-        console.log(payload);
+        // console.log("in buyProducts");
+        // console.log(payload.asins[0]);
+        // console.log(payload);
 
         var asinArray = [];
 
