@@ -13,22 +13,34 @@ module.exports = function () {
         viewProducts: viewProducts,
         isUniqueASIN: isUniqueASIN,
         removeAll: removeAll,
-        findProducts: findProducts
+        findProducts: findProducts,
+        findProduct: findProduct
     };
     return api;
+    
+    function findProduct(asin){
+        // console.log("in findProduct");
+        
+        return ProductModel.find({asin: asin});
+    }
 
     function findProducts(payload){
         // var products = payload.asins;
+        // console.log(payload.asins.length);
 
-        for(x=0; x<payload.asins.length; x++){
-            ProductModel.find(payload.asins[x])
-                .then(function(result){
-                    if (result == null || []){
-                        return false;
-                    }
-                });
+        for(var x=0; x<payload.asins.length; x++) {
+            //     ProductModel.find(payload.asins[x])
+            //         .then(function(result){
+            //             if (result == null || []){
+            //                 console.log(false);
+            //                 return false;
+            //             }
+            //         });
+            // }
+            // console.log(true);
+            // return true;
+            return ProductModel.find(payload.asins[x]);
         }
-        return true;
     }
 
     function findAllProducts(products){

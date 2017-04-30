@@ -9,20 +9,56 @@ module.exports = function () {
     var api = {
         setModel: setModel,
         createRecommendations: createRecommendations,
-        findRecommendations: findRecommendations
+        findRecommendations: findRecommendations,
+        createNewRecommendation: createNewRecommendation,
+        editRecommendation: editRecommendation
     };
     return api;
-    
-    function findRecommendations(asin){
-        return RecommendationsModel.find({asin:asin});
+
+    function editRecommendation(asin, payload, result) {
+        console.log("in edit Recommendation");
+
+        for (var x = 0; x < payload.asins.length; x++) {
+            for (var y = 0; y < result.recommendations.length; y++) {
+                if (payload.asins[x].asin == result.recommendations[y].asin) {
+                    result.recommendations[y].count++;
+                }
+            }
+        }
+        RecommendationsModel.remove({asin: asin});
+        return RecommendationsModel.create({asin: asin, recommendations: result.recommendations});
     }
 
-    function createRecommendations(payload){
+    function createNewRecommendation(asin, payload) {
+        console.log("in createNewRecommendation");
+        var recArray = [];
+
+        for (var x = 0; x < payload.asins.length; x++) {
+            if (payload.asins[x].asin != asin.asin) {
+                recArray.push({asin: payload.asins[x].asin.toString(), count: 1});
+            }
+        }
+        var returnValue = {asin: asin.asin.toString(), recommendations: recArray};
+        console.log(returnValue);
+
+        return RecommendationsModel.create(returnValue);
+    }
+
+    function findRecommendations(asin) {
+        console.log("in find recommendations");
+        console.log(asin);
+
+        return RecommendationsModel.find({asin: asin.asin});
+    }
+
+    function createRecommendations(payload) {
+        console.log("payload is " + payload);
+
         var asins = payload.asins;
-        for(i=0; i<asins.length; i++){
+        for (i = 0; i < asins.length; i++) {
             var recommendedAsins = [];
-            for(x=0; x<asins.length; x++){
-                if(asins[x]!=asins[i]){
+            for (x = 0; x < asins.length; x++) {
+                if (asins[x] != asins[i]) {
                     recommendedAsins.push(asins[x])
                 }
             }
@@ -30,31 +66,31 @@ module.exports = function () {
         }
     }
 
-    function createRecommendation(asin, recommendedAsins){
+    function createRecommendation(asin, recommendedAsins) {
         RecommendationsModel.find(asin)
-            .then(function(result){
-                if(result==null||[]){
+            .then(function (result) {
+                if (result == null || []) {
                     var recommended = [];
-                    for(i=0; i<recommendedAsins.length; i++){
-                        var recommend = {asin:recommendedAsins[i], count: 1};
+                    for (i = 0; i < recommendedAsins.length; i++) {
+                        var recommend = {asin: recommendedAsins[i], count: 1};
                         recommended.push(recommend);
                     }
-                    var newRecommendation = {asin:asin, recommendations:recommended};
+                    var newRecommendation = {asin: asin, recommendations: recommended};
                     return RecommendationsModel.create(newRecommendation);
-                }else return updateRecommendations(result, recommendedAsins);
+                } else return updateRecommendations(result, recommendedAsins);
             });
     }
 
-    function updateRecommendations(result, recommendedAsins){
-        for(i=0; i<result.recommendations.length; i++){
-            for(x=0; x<recommendedAsins.length; x++){
-                if(recommendedAsins[x]==result.asins[i]){
+    function updateRecommendations(result, recommendedAsins) {
+        for (i = 0; i < result.recommendations.length; i++) {
+            for (x = 0; x < recommendedAsins.length; x++) {
+                if (recommendedAsins[x] == result.asins[i]) {
                     result.asin.count++;
                     break;
                 }
             }
         }
-        RecommendationsModel.remove({asin:result.asin});
+        RecommendationsModel.remove({asin: result.asin});
         return RecommendationsModel.create(result);
     }
 

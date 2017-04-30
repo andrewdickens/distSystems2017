@@ -44,13 +44,13 @@ module.exports = function (app, model) {
     app.post('/productsPurchased', productsPurchased);
     app.post('/getRecommendations', getRecommendations);
 
-    function getRecommendations(req, res){
+    function getRecommendations(req, res) {
         if (isNotLoggedIn(req)) {
             res.json({message: 'You are not currently logged in'});
         } else model.recommendationsModel
             .findRecommendations(req.body)
-            .then(function(result){
-                if(result==null||[]){
+            .then(function (result) {
+                if (result == null || []) {
                     res.json({message: 'There are no recommendations for that product'})
                 } else res.json({}); //todo
             })
@@ -76,29 +76,66 @@ module.exports = function (app, model) {
     }
 
     function buyProducts(req, res) {
-        var payload = {username: req.user.username, asins: req.body.products};
+        var payload = null;
+        var x=0;
 
         if (isNotLoggedIn(req)) {
-            console.log(req.user.username);
             res.json({message: 'You are not currently logged in'});
-        } else model.productModel
-            .findProducts(payload)
-            .then(function (result) {
-                if (result == false) {
-                    res.json({message: 'There are no products that match that criteria'})
-                } else model.purchasesModel
-                    .buyProducts(payload)
+        } else if (!isNotLoggedIn(req)) {
+            payload = {username: req.user.username, asins: req.body.products};
+            // console.log(payload);
+            for (x; x < payload.asins.length; x++) {
+                model.productModel
+                    .findProduct(payload.asins[x].asin)
                     .then(function (result) {
-                        console.log(result);
-                        model.recommendationsModel
-                            .createRecommendations(payload)
-                            .then(function(){
-                                res.json({message: 'The action was successful'});
-                            });
-                        res.json({message: 'The action was successful'})
-                    })
-            });
+                        // console.log("in findProduct callback");
+                        // console.log(result);
+                        // console.log("x is " + x);
+                        if (result == null) {
+                            res.json({message: 'There are no products that match that criteria'})
+                        } else if (x == payload.asins.length) {
+                            // console.log("in AFTER x ==2");
+                            x++;
+                            model.purchasesModel
+                                .buyProducts(payload)
+                                .then(function (result) {
+                                    console.log("buyProducts callback");
+                                    console.log(result);
+                                    var y=0;
+                                    // for(y; y<payload.asins.length; y++) {
+                                    payload.asins.forEach(function(asin){
+                                        // var t=y;
+                                        model.recommendationsModel
+                                            .findRecommendations(asin)
+                                            .then(function (result) {
+                                                console.log("in find recommendations callback");
+                                                console.log(result);
+                                                if (result == null || []) {
+                                                    console.log("new rec");
+                                                    model.recommendationsModel
+                                                        .createNewRecommendation(asin, payload)
+                                                        .then(function () {
+                                                            res.json({message: 'The action was successful'});
+                                                        })
+                                                } else {
+                                                    console.log("old rec");
+                                                    model.recommendationsModel
+                                                        .editRecommendation(asin, payload, result)
+                                                        .then(function (result) {
+                                                            console.log(result);
+                                                            res.json({message: 'The action was successful'});
+                                                        });
+                                                }
+                                            });
+                                    });
+                                    // res.json({message: 'The action was successful'});
+                                });
+                        }
+                    });
+            }
+        }
     }
+
 
     function registerUser(req, res) {
         console.log("in register user");
