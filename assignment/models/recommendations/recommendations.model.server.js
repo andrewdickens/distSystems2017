@@ -17,6 +17,11 @@ module.exports = function () {
 
     function editRecommendation(asin, payload, result) {
         console.log("in edit Recommendation");
+        console.log(asin);
+        console.log(payload);
+        console.log(result);
+        console.log(result.recommendations);
+        var save = result.recommendations;
 
         for (var x = 0; x < payload.asins.length; x++) {
             for (var y = 0; y < result.recommendations.length; y++) {
@@ -25,8 +30,8 @@ module.exports = function () {
                 }
             }
         }
-        RecommendationsModel.remove({asin: asin});
-        return RecommendationsModel.create({asin: asin, recommendations: result.recommendations});
+        RecommendationsModel.remove({asin: asin.asin, recommendations: save});
+        return RecommendationsModel.create({asin: asin.asin, recommendations: result.recommendations});
     }
 
     function createNewRecommendation(asin, payload) {

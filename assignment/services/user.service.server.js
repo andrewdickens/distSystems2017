@@ -67,17 +67,49 @@ module.exports = function (app, model) {
                 } else model.purchasesModel
                     .productsPurchased(req.user.username)
                     .then(function (result) {
-                        if (result == null || []) {
+                        console.log(result);
+                        if (result == []) {
                             res.json({message: 'There are no users that match that criteria'})
-                        } else res.json({message: ''}); //todo
+                        } else
+                            console.log("here");
+                        var productArray = [];
+                        result.forEach(function (recommendation) {
+                            var bool = false;
+                            recommendation.asins.forEach(function (products) {
+                                productArray.forEach(function (capturedProduct) {
+                                    if (products == capturedProduct.productName) {
+                                        capturedProduct.quantity++;
+                                        bool = true;
+                                    }
+                                });
+                                if (bool == false) {
+                                    productArray.push({"productName": products, "quantity": 1});
+                                }
+                            })
+                        });
 
+                        var finalProductArray = [];
+                        productArray.forEach(function (product) {
+                            model.productModel
+                                .findProduct(product.productName)
+                                .then(function (result) {
+                                    console.log(result[0].productName);
+                                    finalProductArray.push({
+                                        productName: result[0].productName,
+                                        quantity: product.quantity
+                                    });
+                                    if (finalProductArray.length == productArray.length) {
+                                        res.json({message: 'The action was successful', products: finalProductArray});
+                                    }
+                                })
+                        });
                     });
             });
     }
 
     function buyProducts(req, res) {
         var payload = null;
-        var x=0;
+        var x = 0;
 
         if (isNotLoggedIn(req)) {
             res.json({message: 'You are not currently logged in'});
@@ -101,16 +133,16 @@ module.exports = function (app, model) {
                                 .then(function (result) {
                                     console.log("buyProducts callback");
                                     console.log(result);
-                                    var y=0;
+                                    var y = 0;
                                     // for(y; y<payload.asins.length; y++) {
-                                    payload.asins.forEach(function(asin){
+                                    payload.asins.forEach(function (asin) {
                                         // var t=y;
                                         model.recommendationsModel
                                             .findRecommendations(asin)
                                             .then(function (result) {
                                                 console.log("in find recommendations callback");
                                                 console.log(result);
-                                                if (result == null || []) {
+                                                if (result[0] == null || result[0] == []) {
                                                     console.log("new rec");
                                                     model.recommendationsModel
                                                         .createNewRecommendation(asin, payload)
@@ -120,7 +152,7 @@ module.exports = function (app, model) {
                                                 } else {
                                                     console.log("old rec");
                                                     model.recommendationsModel
-                                                        .editRecommendation(asin, payload, result)
+                                                        .editRecommendation(asin, payload, result[0])
                                                         .then(function (result) {
                                                             console.log(result);
                                                             res.json({message: 'The action was successful'});
